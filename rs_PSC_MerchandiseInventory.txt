@@ -208,8 +208,9 @@ FROM
         ON pitx.hIcItemType = stock.hMy
     LEFT JOIN icPropLocationXref plx 
         ON plx.hIcInventoryLocation = loc.hMy
-    left JOIN property p 
+    inner JOIN property p 
         on loc.hentity = p.hmy
+    left join owner o on o.hmyperson = p.hlegalentity
 WHERE
     ISNULL(stock.bInactive, 0) <> -1
     AND ISNULL(loc.bInactive, 0) <> -1
