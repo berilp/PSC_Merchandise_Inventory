@@ -129,7 +129,7 @@ select
   p.scode Property_Code,
   p.hmy phmy,
   p.saddr1 PropertyName,
-  'Facility Name : ' + p.scode + ' - ' + o.ulastname as Property,
+  N'Facility Name : ' + p.scode + ' - ' + o.ulastname as Property,
   DATENAME(WEEKDAY, CAST('#FromDate#' AS DATETIME)) + ', ' +
   DATENAME(MONTH, CAST('#FromDate#' AS DATETIME)) + ' ' +
   CAST(DAY(CAST('#FromDate#' AS DATETIME)) AS VARCHAR) + ', ' +
@@ -197,7 +197,7 @@ WHERE
     stock.sDesc AS InventoryName,
     inv.dNumberAvailable AS QuantityAvailable,
     stock.dBillPrice AS Price,
-    'Facility Name: ' + p.scode + ' - ' + o.ulastname as Property,
+    N'Facility Name: ' + p.scode + ' - ' + o.ulastname as Property
 FROM
     icInventory inv
     INNER JOIN mm2stock stock 
