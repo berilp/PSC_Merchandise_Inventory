@@ -146,7 +146,6 @@ FROM
         ON inv.hIcItemType = stock.hMy
     INNER JOIN icInventoryLocation loc 
         ON inv.hIcInventoryLocation = loc.hMy
-    -- link property based on item type or location xref
     LEFT JOIN icPropItemTypeXref pitx 
         ON pitx.hIcItemType = stock.hMy
     LEFT JOIN icPropLocationXref plx 
@@ -205,13 +204,11 @@ FROM
         ON inv.hIcItemType = stock.hMy
     INNER JOIN icInventoryLocation loc 
         ON inv.hIcInventoryLocation = loc.hMy
-    -- link property based on item type or location xref
     LEFT JOIN icPropItemTypeXref pitx 
         ON pitx.hIcItemType = stock.hMy
     LEFT JOIN icPropLocationXref plx 
         ON plx.hIcInventoryLocation = loc.hMy
     left JOIN property p 
-        --ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
         on loc.hentity = p.hmy
 WHERE
     ISNULL(stock.bInactive, 0) <> -1
