@@ -1,0 +1,195 @@
+//notes 
+  Script Name : rs_PSC_MerchandiseInventory.txt
+  Client Name : Public Storage
+  Created On  : 2025-08-12
+  Created By  : Beril Pehlivan
+  Description : YSR - Merchandise Inventory
+  Modified On : 
+original query- 
+select
+  inv.hMy InventoryId,
+  loc.sCode LocationCode,
+  stock.sCode ItemTypeCode,
+  stock.sDesc ItemTypeDescription,
+  inv.dNumberAvailable QuantityAvailable,
+  inv.dNumberReserved QuantityReserved,
+  inv.dQuantityOnOrder QuantityOnOrder,
+  inv.dIncomingQuantity IncomingQuantity,
+  stock.hMy ItemTypeId,
+  loc.hMy LocationId,
+  N'IcInventoryLocationMain.aspx?id=' + convert(varchar, loc.hMy) LocationURL,
+  N'IcItemTypeMain.aspx?id=' + convert(varchar, stock.hMy) ItemTypeURL,
+  N'IcInventoryMain.aspx?id=' + convert(varchar, inv.hMy) InventoryURL
+from
+  icInventory inv
+  inner join mm2stock stock on inv.hIcItemType = stock.hmy
+  inner join icInventoryLocation loc on inv.hIcInventoryLocation = loc.hmy
+where
+  1 = 1
+  and isnull(stock.bInactive, 0) <> -1
+  and isnull(loc.bInactive, 0) <> -1
+  and (
+    stock.hMy in (
+      select
+        distinct itemType2.hMy
+      from
+        mm2stock itemType2
+        inner join icPropItemTypeXref xref2 on xref2.hIcItemType = itemType2.hMy
+        inner join property p2 on p2.hmy = xref2.hProperty
+    )
+    or 0 = (
+      select
+        count(xref3.hmy)
+      from
+        icPropItemTypeXref xref3
+      where
+        xref3.hIcItemType = stock.hMy
+    )
+  )
+  and (
+    loc.hMy in (
+      select
+        distinct loc2.hMy
+      from
+        icInventoryLocation loc2
+        inner join icPropLocationXref xref2 on xref2.hIcInventoryLocation = loc2.hMy
+        inner join property p2 on p2.hmy = xref2.hProperty
+    )
+    or 0 = (
+      select
+        count(xref3.hmy)
+      from
+        icPropLocationXref xref3
+      where
+        xref3.hIcInventoryLocation = loc.hMy
+    )
+  )
+
+
+
+  --pricing portion
+
+  select
+  stock.hMy "Id",
+  stock.hIcGroup "IcGroupId",
+  stock.sCode "Code",
+  stock.sDesc "Description",
+  stock.sType "Type",
+  stock.iTrackingType "TrackingType",
+  stock.bIsAsset "IsAsset",
+  stock.bTaxable "Taxable",
+  stock.dBillPrice "BillPrice",
+  stock.dCostEach "CostEach",
+  stock.sQuantityUnits "myQuantityUnits",
+  stock.dWeight "Weight",
+  stock.dVolume "Volume",
+  stock.sMake "Make",
+  stock.sModel "Model",
+  stock.sSafetyDataSheetCode "SafetyDataSheetCode",
+  stock.bIsEquipment "IsEquipment",
+  stock.sNotes "Notes",
+  stock.sUser1 "UserDefined1",
+  stock.sUser2 "UserDefined2",
+  stock.sUser3 "UserDefined3",
+  stock.sUser4 "UserDefined4",
+  stock.sUser5 "UserDefined5",
+  stock.sUser6 "UserDefined6",
+  stock.sUser7 "UserDefined7",
+  stock.sUser8 "UserDefined8",
+  stock.sUser9 "UserDefined9",
+  stock.sUser10 "UserDefined10",
+  stock.hWOPayAcct "WOPayAcctId",
+  stock.hPOPayAcct "POPayAcctId",
+  stock.hWOChargeType "WOChargeTypeId",
+  stock.hUserCreated "UserCreatedId",
+  stock.dtCreated "DateCreated",
+  stock.hUserLastModified "UserLastModifiedId",
+  stock.dtLastModified "DateLastModified",
+  stock.bContractorOwned "ContractorOwned",
+  stock.bCommonResponsibility "CommonResponsibility",
+  stock.hFaAssetType "FaAssetTypeId",
+  stock.bDoNotPurchase "DoNotPurchase",
+  stock.bInactive "Inactive",
+  stock.dtInactive "DateInactive",
+  stock.sSiteStuffSearchString "SiteStuffSearchString",
+  stock.bAllowPartialQuantity "AllowPartialQuantity",
+  stock.hBreakdownItemType "BreakdownItemType",
+  stock.dBreakdownCount "BreakdownCount",
+  stock.bBreakdownOnReceive "BreakdownOnReceive"
+from
+  mm2stock stock
+where
+  1 = 1
+  and stock.hMy = 1
+
+
+
+
+
+//end notes 
+
+
+//select display 
+
+
+
+
+
+
+
+
+  SELECT
+    p.sCode AS PropertyCode,
+    p.saddr1 AS PropertyName,
+    stock.sDesc AS InventoryName,
+    inv.dNumberAvailable AS QuantityAvailable,
+    stock.dBillPrice AS Price
+FROM
+    icInventory inv
+    INNER JOIN mm2stock stock 
+        ON inv.hIcItemType = stock.hMy
+    INNER JOIN icInventoryLocation loc 
+        ON inv.hIcInventoryLocation = loc.hMy
+    -- link property based on item type or location xref
+    LEFT JOIN icPropItemTypeXref pitx 
+        ON pitx.hIcItemType = stock.hMy
+    LEFT JOIN icPropLocationXref plx 
+        ON plx.hIcInventoryLocation = loc.hMy
+    left JOIN property p 
+        ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
+WHERE
+    ISNULL(stock.bInactive, 0) <> -1
+    AND ISNULL(loc.bInactive, 0) <> -1
+    AND (
+        stock.hMy IN (
+            SELECT DISTINCT itemType2.hMy
+            FROM mm2stock itemType2
+            INNER JOIN icPropItemTypeXref xref2 
+                ON xref2.hIcItemType = itemType2.hMy
+            INNER JOIN property p2 
+                ON p2.hMy = xref2.hProperty
+        )
+        OR 0 = (
+            SELECT COUNT(xref3.hMy)
+            FROM icPropItemTypeXref xref3
+            WHERE xref3.hIcItemType = stock.hMy
+        )
+    )
+    AND (
+        loc.hMy IN (
+            SELECT DISTINCT loc2.hMy
+            FROM icInventoryLocation loc2
+            INNER JOIN icPropLocationXref xref2 
+                ON xref2.hIcInventoryLocation = loc2.hMy
+            INNER JOIN property p2 
+                ON p2.hMy = xref2.hProperty
+        )
+        OR 0 = (
+            SELECT COUNT(xref3.hMy)
+            FROM icPropLocationXref xref3
+            WHERE xref3.hIcInventoryLocation = loc.hMy
+        )
+    )
+    ;
+
+//end select 
