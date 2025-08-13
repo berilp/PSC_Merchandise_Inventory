@@ -121,26 +121,80 @@ from
 where
   1 = 1
   and stock.hMy = 1
-
-
-
-
-
 //end notes 
 
+//select header
+select 
+  distinct 
+  p.scode Property_Code,
+  p.hmy phmy,
+  p.saddr1 PropertyName,
+  'Facility Name : ' + p.scode + ' - ' + o.ulastname as Property,
+  DATENAME(WEEKDAY, CAST('#FromDate#' AS DATETIME)) + ', ' +
+  DATENAME(MONTH, CAST('#FromDate#' AS DATETIME)) + ' ' +
+  CAST(DAY(CAST('#FromDate#' AS DATETIME)) AS VARCHAR) + ', ' +
+  CAST(YEAR(CAST('#FromDate#' AS DATETIME)) AS VARCHAR) 
+  + ' to ' +
+  DATENAME(WEEKDAY, CAST('#ToDate#' AS DATETIME)) + ', ' +
+  DATENAME(MONTH, CAST('#ToDate#' AS DATETIME)) + ' ' +
+  CAST(DAY(CAST('#ToDate#' AS DATETIME)) AS VARCHAR) + ', ' +
+  CAST(YEAR(CAST('#ToDate#' AS DATETIME)) AS VARCHAR) 
+  AS ReportDateRange
+FROM
+    icInventory inv
+    INNER JOIN mm2stock stock 
+        ON inv.hIcItemType = stock.hMy
+    INNER JOIN icInventoryLocation loc 
+        ON inv.hIcInventoryLocation = loc.hMy
+    -- link property based on item type or location xref
+    LEFT JOIN icPropItemTypeXref pitx 
+        ON pitx.hIcItemType = stock.hMy
+    LEFT JOIN icPropLocationXref plx 
+        ON plx.hIcInventoryLocation = loc.hMy
+    left JOIN property p 
+        ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
+    left join owner o on o.hmyperson = p.hlegalentity
+WHERE
+    ISNULL(stock.bInactive, 0) <> -1
+    AND ISNULL(loc.bInactive, 0) <> -1
+    AND (
+        stock.hMy IN (
+            SELECT DISTINCT itemType2.hMy
+            FROM mm2stock itemType2
+            INNER JOIN icPropItemTypeXref xref2 
+                ON xref2.hIcItemType = itemType2.hMy
+            INNER JOIN property p2 
+                ON p2.hMy = xref2.hProperty
+        )
+        OR 0 = (
+            SELECT COUNT(xref3.hMy)
+            FROM icPropItemTypeXref xref3
+            WHERE xref3.hIcItemType = stock.hMy
+        )
+    )
+    AND (
+        loc.hMy IN (
+            SELECT DISTINCT loc2.hMy
+            FROM icInventoryLocation loc2
+            INNER JOIN icPropLocationXref xref2 
+                ON xref2.hIcInventoryLocation = loc2.hMy
+            INNER JOIN property p2 
+                ON p2.hMy = xref2.hProperty
+        )
+        OR 0 = (
+            SELECT COUNT(xref3.hMy)
+            FROM icPropLocationXref xref3
+            WHERE xref3.hIcInventoryLocation = loc.hMy
+        )
+    )
+   #conditions# ;
+//end select 
 
 //select display 
-
-
-
-
-
-
-
-
   SELECT
-    p.sCode AS PropertyCode,
+    p.sCode AS Property_Code,
     p.saddr1 AS PropertyName,
+    p.hmy phmy,
     stock.sDesc AS InventoryName,
     inv.dNumberAvailable AS QuantityAvailable,
     stock.dBillPrice AS Price
@@ -190,6 +244,6 @@ WHERE
             WHERE xref3.hIcInventoryLocation = loc.hMy
         )
     )
-    ;
+   #conditions# ;
 
 //end select 
