@@ -151,8 +151,8 @@ FROM
         ON pitx.hIcItemType = stock.hMy
     LEFT JOIN icPropLocationXref plx 
         ON plx.hIcInventoryLocation = loc.hMy
-    left JOIN property p 
-        ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
+    inner JOIN property p 
+        ON p.hMy = loc.hentity
     left join owner o on o.hmyperson = p.hlegalentity
 WHERE
     ISNULL(stock.bInactive, 0) <> -1
@@ -197,7 +197,8 @@ WHERE
     p.hmy phmy,
     stock.sDesc AS InventoryName,
     inv.dNumberAvailable AS QuantityAvailable,
-    stock.dBillPrice AS Price
+    stock.dBillPrice AS Price,
+    'Facility Name: ' + p.scode + ' - ' + o.ulastname as Property,
 FROM
     icInventory inv
     INNER JOIN mm2stock stock 
