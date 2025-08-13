@@ -210,7 +210,8 @@ FROM
     LEFT JOIN icPropLocationXref plx 
         ON plx.hIcInventoryLocation = loc.hMy
     left JOIN property p 
-        ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
+        --ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
+        on loc.hentity = p.hmy
 WHERE
     ISNULL(stock.bInactive, 0) <> -1
     AND ISNULL(loc.bInactive, 0) <> -1
