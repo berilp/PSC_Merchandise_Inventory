@@ -7,7 +7,7 @@
 		Loads the Correspondence Custom Report Setup.
 		Report : ...SM Merchandise Inventory (SM_MerchInv) 
 	PACKAGE CREATED ON
-		Date & Time : 8/13/2025 2:32:41 PM
+		Date & Time : 8/13/2025 5:07:24 PM
 	VERSION
 		CorrespondencePIv07.13
 	REPORT NOTES
@@ -28,32 +28,29 @@ SET sCode='SM_MerchInv',sName='...SM Merchandise Inventory',sScriptFileName='',s
   p.hmy phmy,
   p.saddr1 PropertyName,
    ''Property: '' + p.scode + '' - '' + o.ulastname as Property,
-    DATENAME(WEEKDAY, CAST(''08/01/2025'' AS DATETIME)) + '', '' +
-  DATENAME(MONTH, CAST(''08/01/2025'' AS DATETIME)) + '' '' +
-  CAST(DAY(CAST(''08/01/2025'' AS DATETIME)) AS VARCHAR) + '', '' +
-  CAST(YEAR(CAST(''08/01/2025'' AS DATETIME)) AS VARCHAR) 
+  DATENAME(WEEKDAY, CAST(''#FromDate#'' AS DATETIME)) + '', '' +
+  DATENAME(MONTH, CAST(''#FromDate#'' AS DATETIME)) + '' '' +
+  CAST(DAY(CAST(''#FromDate#'' AS DATETIME)) AS VARCHAR) + '', '' +
+  CAST(YEAR(CAST(''#FromDate#'' AS DATETIME)) AS VARCHAR) 
   + '' to '' +
-  DATENAME(WEEKDAY, CAST(''08/13/2025'' AS DATETIME)) + '', '' +
-  DATENAME(MONTH, CAST(''08/13/2025'' AS DATETIME)) + '' '' +
-  CAST(DAY(CAST(''08/13/2025'' AS DATETIME)) AS VARCHAR) + '', '' +
-  CAST(YEAR(CAST(''08/13/2025'' AS DATETIME)) AS VARCHAR) 
+  DATENAME(WEEKDAY, CAST(''#ToDate#'' AS DATETIME)) + '', '' +
+  DATENAME(MONTH, CAST(''#ToDate#'' AS DATETIME)) + '' '' +
+  CAST(DAY(CAST(''#ToDate#'' AS DATETIME)) AS VARCHAR) + '', '' +
+  CAST(YEAR(CAST(''#ToDate#'' AS DATETIME)) AS VARCHAR) 
   AS ReportDateRange
 FROM icInventory inv
 JOIN mm2stock stock
   ON stock.hMy = inv.hIcItemType
 JOIN icInventoryLocation loc
   ON loc.hMy = inv.hIcInventoryLocation
-LEFT JOIN icPropItemTypeXref pitx
-  ON pitx.hIcItemType = stock.hMy
+LEFT JOIN icPropItemTypeXref pitx ON pitx.hIcItemType = stock.hMy
 LEFT JOIN icPropLocationXref plx
   ON plx.hIcInventoryLocation = loc.hMy
-LEFT JOIN property p
-  ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
-LEFT JOIN owner o
-  ON o.hMyPerson = p.hLegalEntity
+inner JOIN property p ON loc.hentity = p.hmy
+LEFT JOIN owner o ON o.hMyPerson = p.hLegalEntity
 WHERE ISNULL(stock.bInactive, 0) <> -1
   AND ISNULL(loc.bInactive, 0) <> -1
-and p.hmy = 3;',sKeyCols='Property_Code',bInactive=0,bNewScreenOutput =1,bTabbedOutput =1,bTitleUsingFreezePanes =0,iObjectType=0,
+#conditions#;',sKeyCols='Property_Code',bInactive=0,bNewScreenOutput =1,bTabbedOutput =1,bTitleUsingFreezePanes =0,iObjectType=0,
      sHRecord='',
      hAttachment=(SELECT hmy FROM AttachmentType WHERE UPPER(sDesc) =UPPER('') AND iObjectType =0),
      hEmailTemplate=(SELECT hmy FROM Email_Template WHERE UPPER(sName) =UPPER('') AND iType =0),
@@ -88,32 +85,29 @@ SELECT 'SM_MerchInv','...SM Merchandise Inventory','','select
   p.hmy phmy,
   p.saddr1 PropertyName,
    ''Property: '' + p.scode + '' - '' + o.ulastname as Property,
-    DATENAME(WEEKDAY, CAST(''08/01/2025'' AS DATETIME)) + '', '' +
-  DATENAME(MONTH, CAST(''08/01/2025'' AS DATETIME)) + '' '' +
-  CAST(DAY(CAST(''08/01/2025'' AS DATETIME)) AS VARCHAR) + '', '' +
-  CAST(YEAR(CAST(''08/01/2025'' AS DATETIME)) AS VARCHAR) 
+  DATENAME(WEEKDAY, CAST(''#FromDate#'' AS DATETIME)) + '', '' +
+  DATENAME(MONTH, CAST(''#FromDate#'' AS DATETIME)) + '' '' +
+  CAST(DAY(CAST(''#FromDate#'' AS DATETIME)) AS VARCHAR) + '', '' +
+  CAST(YEAR(CAST(''#FromDate#'' AS DATETIME)) AS VARCHAR) 
   + '' to '' +
-  DATENAME(WEEKDAY, CAST(''08/13/2025'' AS DATETIME)) + '', '' +
-  DATENAME(MONTH, CAST(''08/13/2025'' AS DATETIME)) + '' '' +
-  CAST(DAY(CAST(''08/13/2025'' AS DATETIME)) AS VARCHAR) + '', '' +
-  CAST(YEAR(CAST(''08/13/2025'' AS DATETIME)) AS VARCHAR) 
+  DATENAME(WEEKDAY, CAST(''#ToDate#'' AS DATETIME)) + '', '' +
+  DATENAME(MONTH, CAST(''#ToDate#'' AS DATETIME)) + '' '' +
+  CAST(DAY(CAST(''#ToDate#'' AS DATETIME)) AS VARCHAR) + '', '' +
+  CAST(YEAR(CAST(''#ToDate#'' AS DATETIME)) AS VARCHAR) 
   AS ReportDateRange
 FROM icInventory inv
 JOIN mm2stock stock
   ON stock.hMy = inv.hIcItemType
 JOIN icInventoryLocation loc
   ON loc.hMy = inv.hIcInventoryLocation
-LEFT JOIN icPropItemTypeXref pitx
-  ON pitx.hIcItemType = stock.hMy
+LEFT JOIN icPropItemTypeXref pitx ON pitx.hIcItemType = stock.hMy
 LEFT JOIN icPropLocationXref plx
   ON plx.hIcInventoryLocation = loc.hMy
-LEFT JOIN property p
-  ON p.hMy = COALESCE(pitx.hProperty, plx.hProperty)
-LEFT JOIN owner o
-  ON o.hMyPerson = p.hLegalEntity
+inner JOIN property p ON loc.hentity = p.hmy
+LEFT JOIN owner o ON o.hMyPerson = p.hLegalEntity
 WHERE ISNULL(stock.bInactive, 0) <> -1
   AND ISNULL(loc.bInactive, 0) <> -1
-and p.hmy = 3;','Property_Code',0,1,1,0,0,''
+#conditions#;','Property_Code',0,1,1,0,0,''
       ,(SELECT hmy FROM AttachmentType WHERE UPPER(sDesc) =UPPER('') AND iObjectType =0)
       ,(SELECT hmy FROM Email_Template WHERE UPPER(sName) =UPPER('') AND iType =0)
       ,(SELECT hmy FROM Role WHERE UPPER(sDesc) =UPPER('') AND iObjectType =0)
@@ -144,7 +138,7 @@ WHERE NOT EXISTS(SELECT 1 FROM CustomCorrespMerging WHERE UPPER(sCode)=UPPER('SM
 /* Insert or UPDATE Filters Setup for SM_MerchInv */ 
 UPDATE CustomCorrespFilters 
 SET hCustomCorrespMerging =(SELECT hmy FROM CustomCorrespMerging WHERE UPPER(Scode) = UPPER('SM_MerchInv')),iMaxWidth=0,bInactive=0,bShowInTitle=0,sFieldName='phmy',
-   sLabel='Property',sSequence='01',sType='Lookup List',sMandatory='False',sListValues='',sIsQuery='False',sLookupName='ysiPropertyOrListLookup',sPopulatedInURL='Allow Edit',
+   sLabel='Property',sSequence='01',sType='Lookup List',sMandatory='True',sListValues='',sIsQuery='False',sLookupName='ysiPropertyOrListLookup',sPopulatedInURL='Allow Edit',
    sMultiple='True',sParent='',sCodeToID='',sRowNumber='01',sColumnView='1'
 WHERE hMy=(SELECT ISNULL(Max(crf1.hMy),0) 
              FROM CustomCorrespFilters crf1 
@@ -153,7 +147,7 @@ WHERE hMy=(SELECT ISNULL(Max(crf1.hMy),0)
              AND UPPER(crf1.sFieldName)=UPPER('phmy') )
 ;
 INSERT INTO CustomCorrespFilters(hCustomCorrespMerging,iMaxWidth,bInactive,bShowInTitle,sFieldName,sLabel,sSequence,sType,sMandatory,sListValues,sIsQuery,sLookupName,sPopulatedInURL, sMultiple,sParent,sCodeToID,sRowNumber,sColumnView)
-SELECT (SELECT Hmy FROM CustomCorrespMerging WHERE UPPER(Scode)=UPPER('SM_MerchInv')),0,0,0,'phmy','Property','01','Lookup List','False','','False','ysiPropertyOrListLookup','Allow Edit','True','','','01','1'
+SELECT (SELECT Hmy FROM CustomCorrespMerging WHERE UPPER(Scode)=UPPER('SM_MerchInv')),0,0,0,'phmy','Property','01','Lookup List','True','','False','ysiPropertyOrListLookup','Allow Edit','True','','','01','1'
 WHERE NOT EXISTS( 
                  SELECT 1 
                  FROM CustomCorrespFilters 
